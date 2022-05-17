@@ -1,5 +1,7 @@
 # dpython
 
+![dpython Test Workflow](https://github.com/CuckooEXE/dpython/actions/workflows/Tests/badge.svg)
+
 This is (dumb) Python, with a number of (dumb) enhancements that will make your life ~more confusing~ easier. Please don't actually use this, this is just me messing around with Python to learn its internals, and to learn more about programming languages.
 
 ## Features
@@ -8,9 +10,9 @@ This is (dumb) Python, with a number of (dumb) enhancements that will make your 
 
 ## TODO
 
- - [  ] IP Addresses as native types
- - [  ] Integer increment operator
- - [  ] Implicit `str` + `int` concatenation
+ - [ ] IP Addresses as native types
+ - [ ] Integer increment operator
+ - [ ] Implicit `str` + `int` concatenation
 
 ## Testing
 
