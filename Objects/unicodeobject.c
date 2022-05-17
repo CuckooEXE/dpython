@@ -10675,25 +10675,38 @@ PyObject *
 PyUnicode_Concat(PyObject *left, PyObject *right)
 {
     PyObject *result;
+    PyObject *tmp;
+    PyObject *unicode_right;
     Py_UCS4 maxchar, maxchar2;
     Py_ssize_t left_len, right_len, new_len;
+    bool casted = false;
 
     if (ensure_unicode(left) < 0)
         return NULL;
 
     if (!PyUnicode_Check(right)) {
-        PyErr_Format(PyExc_TypeError,
-                     "can only concatenate str (not \"%.200s\") to str",
+        unicode_right = PyObject_Str(right);
+        if (!unicode_right) {
+            PyErr_Format(PyExc_TypeError,
+                     "\"%.200s\" did not have a __str__ method exposed, could not concatenate to str",
                      Py_TYPE(right)->tp_name);
-        return NULL;
+            return NULL;
+        }
+        casted = true;
+        tmp = right;
+        right = unicode_right;        
     }
 
     /* Shortcuts */
     PyObject *empty = unicode_get_empty();  // Borrowed reference
     if (left == empty) {
-        return PyUnicode_FromObject(right);
+        if (casted)
+            Py_DECREF(right);
+        return PyUnicode_FromObject(tmp); // This is the original right
     }
     if (right == empty) {
+        if (casted)
+            Py_DECREF(right);
         return PyUnicode_FromObject(left);
     }
 
@@ -10712,11 +10725,16 @@ PyUnicode_Concat(PyObject *left, PyObject *right)
 
     /* Concat the two Unicode strings */
     result = PyUnicode_New(new_len, maxchar);
-    if (result == NULL)
+    if (result == NULL) {
+        if (casted)
+            Py_DECREF(right);
         return NULL;
+    }
     _PyUnicode_FastCopyCharacters(result, 0, left, 0, left_len);
     _PyUnicode_FastCopyCharacters(result, left_len, right, 0, right_len);
     assert(_PyUnicode_CheckConsistency(result, 1));
+    if (casted)
+            Py_DECREF(right);
     return result;
 }
 
