@@ -1,26 +1,6 @@
 name: Tests
 
-# gh-84728: "paths-ignore" is not used to skip documentation-only PRs, because
-# it prevents to mark a job as mandatory. A PR cannot be merged if a job is
-# mandatory but not scheduled because of "paths-ignore".
-on:
-  workflow_dispatch:
-  push:
-    branches:
-    - 'main'
-    - '3.11'
-    - '3.10'
-    - '3.9'
-    - '3.8'
-    - '3.7'
-  pull_request:
-    branches:
-    - 'main'
-    - '3.11'
-    - '3.10'
-    - '3.9'
-    - '3.8'
-    - '3.7'
+on: push
 
 jobs:
   check_source:
