@@ -14,6 +14,6 @@ jobs:
     - name: configure
       run: ./configure
     - name: make
-      run: make -j
+      run: make -j`nproc`
     - name: make test 
-      run: make -j test
+      run: make -j`nproc` test
