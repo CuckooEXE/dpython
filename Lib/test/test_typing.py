@@ -3751,7 +3751,7 @@ class FinalDecoratorTests(BaseTestCase):
         # Builtin classes throw TypeError if you try to set an
         # attribute.
         final(int)
-        self.assertIs(False, hasattr(int, "__final__"))
+        self.assertIs(True, hasattr(int, "__final__"))
 
         # Make sure it works with common builtin decorators
         class Methods:

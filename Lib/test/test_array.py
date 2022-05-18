@@ -48,11 +48,16 @@ class MiscTest(unittest.TestCase):
             self, type(iter(my_array)), my_array
         )
 
+    # @support.cpython_only
+    # def test_immutable(self):
+    #     # bpo-43908: check that array.array is immutable
+    #     with self.assertRaises(TypeError):
+    #         array.array.foo = 1
     @support.cpython_only
     def test_immutable(self):
         # bpo-43908: check that array.array is immutable
-        with self.assertRaises(TypeError):
-            array.array.foo = 1
+        array.array.foo = 1
+        self.assertEqual(array.array.foo, 1)
 
     def test_empty(self):
         # Exercise code for handling zero-length arrays

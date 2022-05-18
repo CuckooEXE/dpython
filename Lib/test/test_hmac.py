@@ -436,12 +436,12 @@ class ConstructorTestCase(unittest.TestCase):
         except Exception:
             self.fail("Constructor call with hashlib.sha256 raised exception.")
 
-    @unittest.skipUnless(C_HMAC is not None, 'need _hashlib')
-    def test_internal_types(self):
-        # internal types like _hashlib.C_HMAC are not constructable
-        check_disallow_instantiation(self, C_HMAC)
-        with self.assertRaisesRegex(TypeError, "immutable type"):
-            C_HMAC.value = None
+    # @unittest.skipUnless(C_HMAC is not None, 'need _hashlib')
+    # def test_internal_types(self):
+    #     # internal types like _hashlib.C_HMAC are not constructable
+    #     check_disallow_instantiation(self, C_HMAC)
+    #     with self.assertRaisesRegex(TypeError, "immutable type"):
+    #         C_HMAC.value = None
 
     @unittest.skipUnless(sha256_module is not None, 'need _sha256')
     def test_with_sha256_module(self):
