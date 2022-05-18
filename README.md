@@ -2,6 +2,8 @@
 
 [![Passing Tests](https://github.com/CuckooEXE/dpython/actions/workflows/build.yml/badge.svg)](https://github.com/CuckooEXE/dpython/actions/workflows/build.yml)
 
+![dpython logo](dpython.png)
+
 This is (dumb) Python, with a number of (dumb) enhancements that will make your life ~more confusing~ easier. This is a fork of `Python 3.12.0 alpha 0` (which was the `main` branch at time of forking, no real reason for this version). 
 
 > Please don't actually use this, this is just me messing around with Python to learn its internals, and to learn more about programming languages.
