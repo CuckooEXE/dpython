@@ -2,6 +2,7 @@
 apt-get update
 
 apt-get -yq install \
+    coreutils \
     build-essential \
     pkg-config \
     ccache \
