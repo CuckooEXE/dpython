@@ -81,7 +81,7 @@ class WithTest(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             with mock:
-                'foo' + 3
+                'foo' + ['a']
         mock.__enter__.assert_called_with()
         self.assertTrue(mock.__exit__.called)
 

@@ -280,7 +280,8 @@ class HashLibTestCase(unittest.TestCase):
                 sys.modules['_md5'] = _md5
             else:
                 del sys.modules['_md5']
-        self.assertRaises(TypeError, get_builtin_constructor, 3)
+        self.assertRaises(TypeError, get_builtin_constructor, [])
+        self.assertRaises(ValueError, get_builtin_constructor, 3)
         constructor = get_builtin_constructor('md5')
         self.assertIs(constructor, _md5.md5)
         self.assertEqual(sorted(builtin_constructor_cache), ['MD5', 'md5'])

@@ -3641,10 +3641,6 @@ order (MRO) for bases """
             self.fail("hash() of list subclass should fail")
 
     def test_str_operations(self):
-        try: 'a' + 5
-        except TypeError: pass
-        else: self.fail("'' + 5 doesn't raise TypeError")
-
         try: ''.split('')
         except ValueError: pass
         else: self.fail("''.split('') doesn't raise ValueError")

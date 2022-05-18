@@ -1224,6 +1224,8 @@ class Enum(metaclass=EnumType):
         last_value: the last value assigned or None
         """
         for last_value in reversed(last_values):
+            if not isinstance(last_value, int):
+                return start
             try:
                 return last_value + 1
             except TypeError:

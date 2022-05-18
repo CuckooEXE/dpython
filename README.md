@@ -52,9 +52,31 @@ So it looks like we'll have to handle two cases. More than likely we just go to 
 
 ~~For the former case, I think I'll cast the RHS if it's not already a Unicode type, add it to the LHS Unicode, then destroy the cast (as to not leak memory).~~
 
-So we don't have to cast after all, we can just get a new PyObject using `PyObject_Str` which basically calls `str(RHS)`, or `RHS.__str__()`. Then we use that as the new RHS. We'll still need to release it to ensure we don't leak memory. Remember, this code has to work, it doesn't have to be __that__ good :).
+So we don't have to cast after all, we can just get a new PyObject using `PyObject_Str` which basically calls `str(RHS)`, or `RHS.__str__()`. However, we'll test to see if the underlying `PyObject` is a `PyLong` (integer/number). Then we use that string `PyObject` as the new RHS. We'll still need to release it to ensure we don't leak memory. Remember, this code has to work, it doesn't have to be __that__ good :).
 
-After building, we have 5 failed tests, but our feature works! It's more than likely that the tests __explicitly__ test that you can't concatenate `str + int` (or similar), so we'll have to change (or ignore :eyes: those tests).
+After building, we have 5 failed tests, but our feature works! It's more than likely that the tests __explicitly__ test that you can't concatenate `str + int` (or similar), so we'll have to change (or ignore :eyes:) those tests.
+
+I'll go ahead and update the tests to make sure they reflect the changes I'm making to the Python codebase. Our failed tests are:
+
+1. test_configparser
+2. test_descr
+3. test_enum
+4. test_hashlib
+5. test_unittest
+
+Most of these were pretty straight-forward (simply correcting Python's (now-)false idea that `str + int` is not acceptable); however `test_enum` proved a more difficult challenge. Take the following code snippet (with a normal Python build):
+
+```python
+from enum import Enum, auto
+
+class e(Enum):
+    A = 'red'
+    B = auto()
+    C = auto()
+```
+
+In this case, `e.A == 'red'`, `e.B == 1`, `e.C == 2`, however, I was getting a failed assertion in `test_enum` that `e.B != 'red1'`. You might start to realize that the underlying code for `auto` grabs the last value and adds one to it. But since we made `str + int` cast to a string, this changes thing. The fix ended up specifically testing that the previous value was an `int`, and if not, continue down the line, in `Lib/enu.py:Enum.__generate_next_value_`.
+
 
 ```python
 >>> '5 + 5 = ' + (5 + 5)

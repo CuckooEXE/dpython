@@ -10685,6 +10685,13 @@ PyUnicode_Concat(PyObject *left, PyObject *right)
         return NULL;
 
     if (!PyUnicode_Check(right)) {
+        // Make sure we only handle "numbers" (integers, floats, and complex), because technically enums would pass `PyLong_Check(right)` which we DONT want.
+        if (!PyLong_CheckExact(right) && !PyFloat_CheckExact(right) && !PyComplex_CheckExact(right)) {
+            PyErr_Format(PyExc_TypeError,
+                  "can only concatenate str (not \"%.200s\") to str",
+                  Py_TYPE(right)->tp_name);
+            return NULL;
+        }
         unicode_right = PyObject_Str(right);
         if (!unicode_right) {
             PyErr_Format(PyExc_TypeError,
