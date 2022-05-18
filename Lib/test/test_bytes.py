@@ -73,6 +73,10 @@ class BaseBytesTest:
         self.assertRaises(IndexError, lambda: b[-sys.maxsize-2])
         self.assertRaises(IndexError, lambda: b[-10**100])
 
+    def test_concat_with_int(self):
+        b = b'abc'
+        self.assertEqual(b + 123, b'abc123')
+
     def test_from_iterable(self):
         b = self.type2test(range(256))
         self.assertEqual(len(b), 256)

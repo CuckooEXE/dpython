@@ -13,7 +13,7 @@ This is (dumb) Python, with a number of (dumb) enhancements that will make your 
  - [ ] IP Addresses as native types
  - [ ] Integer increment operator
  - [x] `str` + `int` concatenation
- - [ ] `bytes` + `int` concatenation
+ - [x] `bytes` + `int` concatenation
  - [ ] Allow setting attributes of built-in/extension types
 
 ## Testing
@@ -122,3 +122,20 @@ if (PyUnicode_Check(a) || PyUnicode_Check(b))
 After implementing the `int + str` code, I got a bunch of failed tests (expected), but then I did some soul-searching... Should `int + str` really happen? My use-case for `str + int` is pretty obvious; you are printing out a status message that contains an integer, and you can't really be bothered by casting the str to an int. However I can't really find a good use-case for `int + str`, __unless__ your status message starts with an `int` which is just... weird. So I'm marking this feature complete! 
 
 I left the `int + str` code in `Objects/abstract.c:PyNumber_Add`, but commented out, without changing any tests.
+
+### `bytes` + `int` concatenation
+
+This should be a walk in the park. Simply update the same logic in `Objects/bytesobject.c` like `Objects/unicodeobject.c` and ... profit?
+
+Well turns out it's not so easy. I found the offending code in `Objects/bytesobject.c:bytes_concat` (through my usual ctrl+f searching), but there is an issue with the casting. Converting an integer to a string is pretty trivial, we can just do `str(5)`, however let's do the same thing but to bytes:
+
+```python
+>>> bytes(5)
+b'\x00\x00\x00\x00\x00'
+```
+
+This actually initializes a new bytes object of length 5. In fact, the Python C API will explicitly forbid you from doing `PyObject_Bytes(o)` when `o` is of a number type. This is going to make it a bit tougher. 
+
+We probably have to cast the number to a string, and then do `str.encode` (but using the C API of course) to get it to a `PyBytes` object. The code ends up being a little bit more complex than the `PyUnicode` condition, but still manageable, and again, this code isn't going to production. YOLO.
+
+After making those changes, all tests pass because I'm a genius (/s). But I want to make sure my changes actually work, so I'll even add a test.

@@ -1403,7 +1403,21 @@ bytes_concat(PyObject *a, PyObject *b)
 {
     Py_buffer va, vb;
     PyObject *result = NULL;
+    PyObject *tmp1 = NULL;
+    PyObject *tmp2 = NULL;
+    bool casted = false;
 
+    if (PyLong_CheckExact(b) || PyFloat_CheckExact(b) || PyComplex_CheckExact(b)) {
+        tmp1 = PyObject_Str(b);
+        if (tmp1) {
+            tmp2 = PyUnicode_AsEncodedString(tmp1, "utf-8", "strict");
+            Py_DECREF(tmp1);
+            if (tmp2) {
+                b = tmp2;
+                casted = true;
+            }
+        }
+    }
     va.len = -1;
     vb.len = -1;
     if (PyObject_GetBuffer(a, &va, PyBUF_SIMPLE) != 0 ||
@@ -1441,6 +1455,8 @@ bytes_concat(PyObject *a, PyObject *b)
         PyBuffer_Release(&va);
     if (vb.len != -1)
         PyBuffer_Release(&vb);
+    if (casted)
+        Py_DECREF(b);
     return result;
 }
 
