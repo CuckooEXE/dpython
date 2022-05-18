@@ -119,4 +119,6 @@ if (PyUnicode_Check(a) || PyUnicode_Check(b))
 
 ~~To do this, I'll essentially just copy and paste the code from check if the LHS is a sequence and modify it appropriately. This modification basically just consists of some sanity checking of types, and then another cast like in our `unicodeobject.c` case.~~
 
-After implementing the `int + str` code, I got a bunch of failed tests (expected), but then I did some soul-searching... Should `int + str` really happen? My use-case for `str + int` is pretty obvious; you are printing out a status message that contains an integer, and you can't really be bothered by casting the str to an int. However I can't really find a good use-case for `int + str`, __unless__ your status message starts with an `int` which is just... weird. So I'm marking this feature complete!
+After implementing the `int + str` code, I got a bunch of failed tests (expected), but then I did some soul-searching... Should `int + str` really happen? My use-case for `str + int` is pretty obvious; you are printing out a status message that contains an integer, and you can't really be bothered by casting the str to an int. However I can't really find a good use-case for `int + str`, __unless__ your status message starts with an `int` which is just... weird. So I'm marking this feature complete! 
+
+I left the `int + str` code in `Objects/abstract.c:PyNumber_Add`, but commented out, without changing any tests.

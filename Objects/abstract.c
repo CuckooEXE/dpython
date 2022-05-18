@@ -1083,6 +1083,18 @@ PyNumber_Add(PyObject *v, PyObject *w)
         return result;
     }
 
+    // PyObject *casted_v = PyObject_Str(v);
+    // if (casted_v) {
+    //     m = Py_TYPE(casted_v)->tp_as_sequence;
+    //     if (m && m->sq_concat) {
+    //         result = (*m->sq_concat)(casted_v, w);
+    //         assert(_Py_CheckSlotResult(casted_v, "+", result != NULL));
+    //         Py_DECREF(casted_v);
+    //         return result;
+    //     }
+    //     Py_DECREF(casted_v);
+    // }
+
     return binop_type_error(v, w, "+");
 }
 
