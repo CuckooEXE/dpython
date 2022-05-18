@@ -8,9 +8,24 @@ This is (dumb) Python, with a number of (dumb) enhancements that will make your 
 
 > Please don't actually use this, this is just me messing around with Python to learn its internals, and to learn more about programming languages.
 
+## TODO
+
+ - [ ] IP Addresses as native types
+ - [ ] Integer increment operator
+ - [x] `str` + `int` concatenation
+ - [ ] `bytes` + `int` concatenation
+ - [ ] Allow setting attributes of built-in/extension types
+
+## Testing
+
+```bash
+./configure
+make -j`nproc` test
+```
+
 ## Features
 
-### Implicit `str` + `int` concatenation
+### `str` + `int` concatenation
 
 A former professor/employer/landlord and good friend of mine was frustrated that Python does not have the ability to implicitly cast integer types to string types when printing them out. For example, in JavaScript we can do:
 
@@ -85,16 +100,23 @@ In this case, `e.A == 'red'`, `e.B == 1`, `e.C == 2`, however, I was getting a f
 '5 + 5 = 10'
 ```
 
-## TODO
+~~So we got `str + int`, let's work on the inverse. We probably have go into the `Objects/longobject.c` and inspect the function that is responsible for adding.~~
 
- - [ ] IP Addresses as native types
- - [ ] Integer increment operator
- - [ ] Implicit `str` + `int` concatenation
- - [ ] Allow setting attributes of built-in/extension types
+~~After CTRL+F'ing 'add', I saw `_PyLong_Add`, which is wrapped by a call to `long_add`, but I wasn't sure if this was the function, so to test if it was, I added the line to `Objects/longobject.c:lond_add`:~~
 
-## Testing
-
-```bash
-./configure
-make -j`nproc` test
+```c
+if (PyUnicode_Check(a) || PyUnicode_Check(b))
+    PyErr_Format(PyExc_TypeError,
+              "special case: trying to concat \"%.200s\" and \"%.200s\"",
+              Py_TYPE(a)->tp_name, Py_TYPE(b)->tp_name);
 ```
+
+~~Interestingly enough, that broke my `str + int` code, but didn't even trigger `int + str`. I took another look at the error for `int + str`: `unsupported operand type(s) for +: ... `. The specific "for +" is making me think that Python is checking the types when it parses and detects the binary operator "+". Let's search for that code.~~ 
+
+~~I searched for `unsupported operand type(s) for` which led me to `binop_type_error` (amongst others that I had to check), which was called by `PyNumber_Add` (figured this out because it called with with the operator being "+").~~
+
+~~In this function, the first conditional simply checks if the Binary operator between the two types are implemented, if so, it returns that. If not, it checks if the LHS is a sequence, and if so, attempts to concatenate the RHS to it. Finally, it raises the binary operator error we're getting. So we need to treat the case that the LHS is a number, and the RHS is a sequence.~~
+
+~~To do this, I'll essentially just copy and paste the code from check if the LHS is a sequence and modify it appropriately. This modification basically just consists of some sanity checking of types, and then another cast like in our `unicodeobject.c` case.~~
+
+After implementing the `int + str` code, I got a bunch of failed tests (expected), but then I did some soul-searching... Should `int + str` really happen? My use-case for `str + int` is pretty obvious; you are printing out a status message that contains an integer, and you can't really be bothered by casting the str to an int. However I can't really find a good use-case for `int + str`, __unless__ your status message starts with an `int` which is just... weird. So I'm marking this feature complete!
